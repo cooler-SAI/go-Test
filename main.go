@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	_ "modernc.org/sqlite" // Import SQLite driver
+	_ "github.com/mattn/go-sqlite3" // Import SQLite driver
 )
 
 func main() {
@@ -18,7 +18,7 @@ func main() {
 		log.Fatalf("Error removing database file: %v", err)
 	}
 
-	db, err := sql.Open("sqlite", dbFileName)
+	db, err := sql.Open("sqlite3", dbFileName)
 	if err != nil {
 		log.Fatalf("Error opening database: %v", err)
 	}
