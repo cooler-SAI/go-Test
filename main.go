@@ -3,11 +3,32 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	_ "github.com/mattn/go-sqlite3" // Import SQLite driver
 	"log"
 	"os"
-
-	_ "github.com/mattn/go-sqlite3" // Import SQLite driver
+	"time"
 )
+
+type Job struct {
+	ID   int
+	Name string
+	Date int64
+}
+
+func AddJob(db *sql.DB, name string, date int64) {
+	insertSQL := "INSERT INTO jobs (Name, Date) VALUES (?, ?)"
+	_, err := db.Exec(insertSQL, name, date)
+	if err != nil {
+		log.Fatalf("Error inserting job: %v", err)
+	}
+	fmt.Printf("Job '%s' added successfully.\n", name)
+}
+
+func closeDB(db *sql.DB) {
+	if err := db.Close(); err != nil {
+		log.Printf("Error closing database connection: %v", err)
+	}
+}
 
 func main() {
 	fmt.Println("Starting application...")
@@ -35,17 +56,14 @@ func main() {
 
 	fmt.Println("Creating or checking 'jobs' table...")
 	if _, err := db.Exec(createTableSQL); err != nil {
-
 		log.Fatalf("Error creating or checking 'jobs' table: %v", err)
 	}
 
 	fmt.Println("Table 'jobs' is ready.")
 	fmt.Println("Application setup complete.")
-}
 
-// Helper function to close the database connection and handle errors.
-func closeDB(db *sql.DB) {
-	if err := db.Close(); err != nil {
-		log.Printf("Error closing database connection: %v", err)
-	}
+	currentDate := time.Now()
+	var resultDate = currentDate.Format("2006-01-02")
+	fmt.Println(resultDate)
+	AddJob(db, "jobs", currentDate.Unix())
 }
