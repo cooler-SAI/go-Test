@@ -15,6 +15,16 @@ type Job struct {
 	Date int64
 }
 
+func GetJob(db *sql.DB, id int) (*Job, error) {
+	row := db.QueryRow("SELECT ID, Name, Date FROM jobs WHERE ID = ?", id)
+	job := &Job{}
+	err := row.Scan(&job.ID, &job.Name, &job.Date)
+	if err != nil {
+		return nil, err
+	}
+	return job, nil
+}
+
 func AddJob(db *sql.DB, name string, date int64) {
 	insertSQL := "INSERT INTO jobs (Name, Date) VALUES (?, ?)"
 	_, err := db.Exec(insertSQL, name, date)
@@ -66,4 +76,9 @@ func main() {
 	var resultDate = currentDate.Format("2006-01-02")
 	fmt.Println(resultDate)
 	AddJob(db, "jobs", currentDate.Unix())
+
+	_, err = GetJob(db, 1)
+	if err != nil {
+		log.Fatalf("Error getting job: %v", err)
+	}
 }
